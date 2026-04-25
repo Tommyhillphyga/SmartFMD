@@ -1,0 +1,27 @@
+import logging
+from logging.config import dictConfig
+
+
+def configure_logging() -> None:
+    dictConfig(
+        {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "default": {
+                    "format": "%(asctime)s %(levelname)s [%(name)s] %(message)s",
+                }
+            },
+            "handlers": {
+                "default": {
+                    "formatter": "default",
+                    "class": "logging.StreamHandler",
+                }
+            },
+            "root": {"handlers": ["default"], "level": "INFO"},
+        }
+    )
+
+
+logger = logging.getLogger("smartfmd")
+
