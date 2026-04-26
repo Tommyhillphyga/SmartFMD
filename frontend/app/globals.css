@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 245 246 241;
+  --foreground: 17 24 39;
+  --card: 255 255 255;
+  --border: 214 219 229;
+  --muted: 236 240 234;
+  --primary: 12 112 90;
+  --accent: 200 86 44;
+  --success: 22 163 74;
+  --danger: 220 38 38;
+  --warning: 217 119 6;
+}
+
+.dark {
+  --background: 12 18 26;
+  --foreground: 239 243 247;
+  --card: 16 26 38;
+  --border: 49 63 78;
+  --muted: 25 38 53;
+  --primary: 0 176 139;
+  --accent: 253 186 116;
+  --success: 52 211 153;
+  --danger: 248 113 113;
+  --warning: 251 191 36;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(0, 176, 139, 0.16), transparent 28%),
+    radial-gradient(circle at top right, rgba(253, 186, 116, 0.12), transparent 26%),
+    linear-gradient(180deg, rgba(var(--background), 1), rgba(var(--background), 0.96));
+  color: rgb(var(--foreground));
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+* {
+  border-color: rgb(var(--border));
+}
+
+.grid-sheen {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
