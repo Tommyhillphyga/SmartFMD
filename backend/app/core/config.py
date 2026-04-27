@@ -1,8 +1,9 @@
+import json
 from functools import lru_cache
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import Field
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -12,7 +13,9 @@ class Settings(BaseSettings):
     app_env: Literal["development", "test", "staging", "production"] = "development"
     backend_host: str = "0.0.0.0"
     backend_port: int = 8000
-    backend_cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])
+    backend_cors_origins: Annotated[list[str], NoDecode] = Field(
+        default_factory=lambda: ["http://localhost:3000"]
+    )
     jwt_secret_key: str = "change-me-access"
     jwt_refresh_secret_key: str = "change-me-refresh"
     access_token_expire_minutes: int = 30
@@ -32,6 +35,22 @@ class Settings(BaseSettings):
     smtp_port: int = 1025
     sms_webhook_url: str = "https://example.com/sms"
     whatsapp_webhook_url: str = "https://example.com/whatsapp"
+
+    @field_validator("backend_cors_origins", mode="before")
+    @classmethod
+    def parse_backend_cors_origins(cls, value: str | list[str]) -> list[str]:
+        if isinstance(value, list):
+            return value
+        if isinstance(value, str):
+            raw_value = value.strip()
+            if not raw_value:
+                return []
+            if raw_value.startswith("["):
+                parsed_value = json.loads(raw_value)
+                if isinstance(parsed_value, list):
+                    return [str(item).strip() for item in parsed_value if str(item).strip()]
+            return [item.strip() for item in raw_value.split(",") if item.strip()]
+        raise TypeError("backend_cors_origins must be a list or comma-separated string")
 
     @property
     def is_test(self) -> bool:
