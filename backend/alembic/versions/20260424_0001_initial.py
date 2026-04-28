@@ -7,6 +7,7 @@ Create Date: 2026-04-24 20:30:00
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 
 
 revision = "20260424_0001"
@@ -15,36 +16,46 @@ branch_labels = None
 depends_on = None
 
 
-role_enum = sa.Enum(
+role_enum = postgresql.ENUM(
     "super_admin",
     "station_owner",
     "manager",
     "attendant",
     "auditor",
     name="role_enum",
+    create_type=False,
 )
-pump_status_enum = sa.Enum(
+pump_status_enum = postgresql.ENUM(
     "idle",
     "fueling",
     "offline",
     "tampered",
     "error",
     name="pump_status_enum",
+    create_type=False,
 )
-alert_severity_enum = sa.Enum("low", "medium", "critical", name="alert_severity_enum")
-alert_status_enum = sa.Enum(
+alert_severity_enum = postgresql.ENUM(
+    "low",
+    "medium",
+    "critical",
+    name="alert_severity_enum",
+    create_type=False,
+)
+alert_status_enum = postgresql.ENUM(
     "open",
     "acknowledged",
     "resolved",
     name="alert_status_enum",
+    create_type=False,
 )
-device_status_enum = sa.Enum(
+device_status_enum = postgresql.ENUM(
     "online",
     "offline",
     "degraded",
     name="device_status_enum",
+    create_type=False,
 )
-audit_action_enum = sa.Enum(
+audit_action_enum = postgresql.ENUM(
     "login",
     "create",
     "update",
@@ -52,6 +63,7 @@ audit_action_enum = sa.Enum(
     "export",
     "acknowledge",
     name="audit_action_enum",
+    create_type=False,
 )
 
 

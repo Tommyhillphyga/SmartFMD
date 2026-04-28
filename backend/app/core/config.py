@@ -4,6 +4,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
+from sqlalchemy.engine import make_url
 
 
 class Settings(BaseSettings):
@@ -55,6 +56,16 @@ class Settings(BaseSettings):
     @property
     def is_test(self) -> bool:
         return self.app_env == "test"
+
+    @property
+    def alembic_database_url(self) -> str:
+        url = make_url(self.database_url)
+        driver_map = {
+            "postgresql+asyncpg": "postgresql+psycopg",
+            "sqlite+aiosqlite": "sqlite",
+        }
+        drivername = driver_map.get(url.drivername, url.drivername)
+        return url.set(drivername=drivername).render_as_string(hide_password=False)
 
 
 @lru_cache

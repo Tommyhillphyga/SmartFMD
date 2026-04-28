@@ -6,7 +6,7 @@ from passlib.context import CryptContext
 
 from app.core.config import get_settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["pbkdf2_sha256", "bcrypt"], deprecated="auto")
 
 
 def hash_password(password: str) -> str:
@@ -54,4 +54,3 @@ def decode_token(token: str, token_type: str) -> dict[str, Any]:
     if payload.get("type") != token_type:
         raise jwt.InvalidTokenError("Invalid token type")
     return payload
-

@@ -9,7 +9,10 @@ from app.core.enums import AlertSeverity, DeviceStatus, PumpStatus, Role
 from app.core.security import hash_password
 from app.models import Alert, Company, Device, Nozzle, Pump, Station, TelemetryLog, Transaction, User
 
-fake = Faker("en_NG")
+try:
+    fake = Faker("en_NG")
+except AttributeError:
+    fake = Faker("en_GB")
 
 
 async def seed_database(session: AsyncSession) -> dict[str, int]:

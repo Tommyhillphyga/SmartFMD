@@ -21,6 +21,14 @@ from app.core.enums import AlertSeverity, AlertStatus, AuditAction, DeviceStatus
 from app.db.base import Base, NamedMixin, TimestampMixin, generate_id
 
 
+def app_enum(enum_cls, *, name: str) -> Enum:
+    return Enum(
+        enum_cls,
+        name=name,
+        values_callable=lambda members: [member.value for member in members],
+    )
+
+
 class Company(TimestampMixin, NamedMixin, Base):
     __tablename__ = "companies"
 
@@ -55,7 +63,10 @@ class Pump(TimestampMixin, Base):
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=lambda: generate_id("PUMP"))
     station_id: Mapped[str] = mapped_column(ForeignKey("stations.id"), index=True, nullable=False)
     name: Mapped[str] = mapped_column(String(120), nullable=False)
-    status: Mapped[PumpStatus] = mapped_column(Enum(PumpStatus), default=PumpStatus.IDLE)
+    status: Mapped[PumpStatus] = mapped_column(
+        app_enum(PumpStatus, name="pump_status_enum"),
+        default=PumpStatus.IDLE,
+    )
     product_name: Mapped[str] = mapped_column(String(64), default="PMS")
     totalizer_liters: Mapped[float] = mapped_column(Float, default=0)
     totalizer_amount: Mapped[float] = mapped_column(Float, default=0)
@@ -90,7 +101,10 @@ class Device(TimestampMixin, Base):
         ForeignKey("pumps.id"), index=True, nullable=False, unique=True
     )
     firmware_version: Mapped[str] = mapped_column(String(32), default="1.0.0")
-    status: Mapped[DeviceStatus] = mapped_column(Enum(DeviceStatus), default=DeviceStatus.ONLINE)
+    status: Mapped[DeviceStatus] = mapped_column(
+        app_enum(DeviceStatus, name="device_status_enum"),
+        default=DeviceStatus.ONLINE,
+    )
     last_heartbeat: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     rssi: Mapped[int | None] = mapped_column(Integer)
     voltage: Mapped[float | None] = mapped_column(Float)
@@ -112,7 +126,7 @@ class User(TimestampMixin, Base):
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
-    role: Mapped[Role] = mapped_column(Enum(Role), nullable=False)
+    role: Mapped[Role] = mapped_column(app_enum(Role, name="role_enum"), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     company: Mapped["Company"] = relationship(back_populates="users")
@@ -176,8 +190,14 @@ class Alert(TimestampMixin, Base):
     station_id: Mapped[str] = mapped_column(ForeignKey("stations.id"), index=True, nullable=False)
     pump_id: Mapped[str | None] = mapped_column(ForeignKey("pumps.id"), index=True)
     device_id: Mapped[str | None] = mapped_column(ForeignKey("devices.id"), index=True)
-    severity: Mapped[AlertSeverity] = mapped_column(Enum(AlertSeverity), nullable=False)
-    status: Mapped[AlertStatus] = mapped_column(Enum(AlertStatus), default=AlertStatus.OPEN)
+    severity: Mapped[AlertSeverity] = mapped_column(
+        app_enum(AlertSeverity, name="alert_severity_enum"),
+        nullable=False,
+    )
+    status: Mapped[AlertStatus] = mapped_column(
+        app_enum(AlertStatus, name="alert_status_enum"),
+        default=AlertStatus.OPEN,
+    )
     rule_name: Mapped[str] = mapped_column(String(120), nullable=False)
     message: Mapped[str] = mapped_column(Text, nullable=False)
     metadata_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
@@ -195,7 +215,10 @@ class AuditLog(Base):
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=lambda: generate_id("AUD"))
     user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"), index=True)
-    action: Mapped[AuditAction] = mapped_column(Enum(AuditAction), nullable=False)
+    action: Mapped[AuditAction] = mapped_column(
+        app_enum(AuditAction, name="audit_action_enum"),
+        nullable=False,
+    )
     entity_type: Mapped[str] = mapped_column(String(64), nullable=False)
     entity_id: Mapped[str | None] = mapped_column(String(64))
     details: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
@@ -217,4 +240,3 @@ __all__ = [
     "Transaction",
     "User",
 ]
-
