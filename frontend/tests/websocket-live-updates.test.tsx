@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, waitFor } from "@testing-library/react";
+import { act, render } from "@testing-library/react";
 import { useEffect } from "react";
 import { vi } from "vitest";
 
@@ -24,6 +24,7 @@ class MockSocket {
 
 describe("useDashboardSocket", () => {
   it("invalidates live queries when a websocket event arrives", async () => {
+    vi.useFakeTimers();
     vi.stubGlobal("WebSocket", MockSocket as unknown as typeof WebSocket);
     const queryClient = new QueryClient();
     const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
@@ -40,9 +41,12 @@ describe("useDashboardSocket", () => {
       </QueryClientProvider>,
     );
 
-    await waitFor(() => {
-      expect(invalidateSpy).toHaveBeenCalled();
+    await act(async () => {
+      await vi.runAllTimersAsync();
     });
+
+    expect(invalidateSpy).toHaveBeenCalled();
+
+    vi.useRealTimers();
   });
 });
-
